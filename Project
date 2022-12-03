@@ -1,15 +1,25 @@
+#select first line of hosp admission
+df_proc = df3_proc %>%
+    rowwise() %>%
+    group_by(hadm_id, stay_id) %>%
+    filter(starttime == min(starttime)) %>%
+    slice(1) %>% 
+    ungroup() %>%
+    mutate(endtime = starttime + lubridate::hours(24))
+
+
 merged = inner_join(df3_proc, raw_lab, by = "hadm_id") %>% 
     rowwise() %>%
-    mutate(inwindow = ifelse(between(charttime, starttime, endwindow), 1, 0)) %>%
+    mutate(inwindow = ifelse(between(charttime, starttime, endtime), 1, 0)) %>%
     filter(inwindow == 1)
     
     
 merged2 = merged %>%
-    group_by(hadm_id, starttime, label) %>%
+    group_by(hadm_id, stay_id, starttime, label) %>%
     mutate(valuenum = as.numeric(valuenum)) %>%
     summarise(
         maximum = max(valuenum),
-        minimum = min(valuenum)
+        minimum = min(valuenum))
  
     
  
