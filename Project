@@ -1,0 +1,15 @@
+merged = inner_join(df3_proc, raw_lab, by = "hadm_id") %>% 
+    rowwise() %>%
+    mutate(inwindow = ifelse(between(charttime, starttime, endwindow), 1, 0)) %>%
+    filter(inwindow == 1)
+    
+    
+merged2 = merged %>%
+    group_by(hadm_id, starttime, label) %>%
+    mutate(valuenum = as.numeric(valuenum)) %>%
+    summarise(
+        maximum = max(valuenum),
+        minimum = min(valuenum)
+ 
+    
+ 
